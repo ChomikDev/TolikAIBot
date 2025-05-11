@@ -14,6 +14,13 @@ OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions'
 bot = telebot.TeleBot(BOT_TOKEN)
 app = Flask(__name__)
 
+# Установить webhook при запуске (делается один раз)
+WEBHOOK_URL = f"https://tolikaibot.onrender.com/{BOT_TOKEN}"
+
+# Удаляем старые вебхуки и устанавливаем новый
+bot.remove_webhook()
+bot.set_webhook(url=WEBHOOK_URL)
+
 # Главная страница (для проверки)
 @app.route("/", methods=["GET"])
 def index():
@@ -44,6 +51,7 @@ def handle_message(message):
     response = get_openrouter_response(prompt)
     bot.reply_to(message, response)
 
+# Функция для получения ответа от OpenRouter
 def get_openrouter_response(prompt):
     headers = {
         'Authorization': f'Bearer {OPENROUTER_API_KEY}',
@@ -62,6 +70,7 @@ def get_openrouter_response(prompt):
     except Exception as e:
         return f"Ошибка: {e}"
 
+# Запуск приложения
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
